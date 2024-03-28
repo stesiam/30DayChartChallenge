@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyr)
 library(ggimage)
 library(ggtext)
+library(stringr)
 
 library(showtext)
 library(sysfonts)
@@ -88,7 +89,7 @@ logos = data.frame(
              "", "Aris.png", "PAOK.png", "Iraklis.png", "Panionios.png", "Kastoria.png",
              "Athlitiki_Enosi_Larissa.png", "ofi.png")
 )
-dest = "2024/day2/team_logos/"
+dest = "2024/day4/team_logos/"
 logos$Logo = paste0(dest, logos$Logo)
 
 
@@ -125,7 +126,7 @@ title_text = "<b> <span style='font-family:fs;'  >&#xf091;</span> Greek Football
 subtitle_text =  glue("<b><span style = 'color:#D0061F;'>Olympiacos</span></b> is the team that has won <b>GFC</b> most times ({freq_cups_won_by_team$n[1]}) followed by <b><span style = 'color:#007841;'>Panathinaikos</span><br></b>
     and <b><span style = 'color:#c8a951;'>AEK Athens</span></b> with {freq_cups_won_by_team$n[2]} and {freq_cups_won_by_team$n[3]} cups, respectively. In total, {freq_cups_won_by_team %>% nrow()} teams have succeeded to <br>
     win the cup the last 80 cup seasons of which only <b>10% (8)</b> are from teams outside the<br> so-called Big5 (Olympiacos, Panathinaikos, AEK Athens, PAOK, Aris)")
-caption_text = "30 Day Chart Challenge, Day 2 (2024) | <b> Data:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+caption_text = "30 Day Chart Challenge, Day 4 (2024) | <b> Data:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 p = ggplot(data = clean_data, aes(0,1))+
   geom_image(aes(image=Logo),size=.6) +
@@ -163,3 +164,4 @@ ggsave(
   device = "png",
   height = 4,
   width = 6)
+
