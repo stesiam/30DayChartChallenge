@@ -90,8 +90,7 @@ caption_text = "30 Day Chart Challenge, Day 15 (2024) | <b> Data:</b> Greek Stat
 pal=c("#ffa600",
       "#2f4b7c",
       "#f95d6a",
-      "#a05195",
-      "#d45087")
+      "#a05195")
 
 total_vehicles_per_year = tidy_dataset %>%
   filter(Year %in% c("1990", "2000", "2010", "2020")) %>%
@@ -203,14 +202,16 @@ p = ggplot(tidy_dataset, aes(x = Year, y = Obs/1e6, fill = category, group = cat
   
   geom_segment(aes(x = "2020", y = 0, xend = "2020", yend = total_vehicles_per_year$add[4] + 1),color="black") +
   geom_point(aes(x = "2020", y = total_vehicles_per_year$add[4] + 1),color="black") +
-  geom_richtext(aes(x = "2020", y = total_vehicles_per_year$add[4] + 2,
+  geom_richtext(aes(x = "2020", y = total_vehicles_per_year$add[4] + 2.4,
                     label = glue("<span style = 'font-family:uc; font-size:20px; color: red;'> {round(total_vehicles_per_year$add[4],2)} </span>", " mil.", "<br>",
                                  "<span style = 'font-family:fs;'>&#xf1b9; </span> ", " (", get_yearly_data("2020", "Car")$pct, "%)" , "<br>",
-                                 "<span style = 'font-family:fs;'>&#xf21c; </span> ", " (", get_yearly_data("2020", "Motorcycle")$pct, "%)" , "<br>" )),
+                                 "<span style = 'font-family:fs;'>&#xf21c; </span> ", " (", get_yearly_data("2020", "Motorcycle")$pct, "%)" , "<br>",
+                                 "<span style = 'font-family:fs;'>&#xf0d1; </span> ", " (", get_yearly_data("2020", "Truck")$pct, "%)" , "<br>",
+                                 "<span style = 'font-family:fs;'>&#xf207; </span> ", " (", get_yearly_data("2020", "Bus")$pct, "%)" , "<br>" )),
            fill = NA, label.color = NA,
            hjust=0.5,
            size=3,
-           lineheight=.8,
+           lineheight=1.1,
            fontface="bold",family="uc",
            color="black") +
   
@@ -332,14 +333,16 @@ p_black = ggplot(tidy_dataset, aes(x = Year, y = Obs/1e6, fill = category, group
   
   geom_segment(aes(x = "2020", y = 0, xend = "2020", yend = total_vehicles_per_year$add[4] + 1),color="white") +
   geom_point(aes(x = "2020", y = total_vehicles_per_year$add[4] + 1),color="white") +
-  geom_richtext(aes(x = "2020", y = total_vehicles_per_year$add[4] + 2,
+  geom_richtext(aes(x = "2020", y = total_vehicles_per_year$add[4] + 2.4,
                     label = glue("<span style = 'font-family:uc; font-size:20px; color: red;'> {round(total_vehicles_per_year$add[4],2)} </span>", " mil.", "<br>",
-                                 "<span style = 'font-family:fs;'>&#xf1b9; </span> ", " (", get_yearly_data("2020", "Car")$pct, "%)" , "<br>",
-                                 "<span style = 'font-family:fs;'>&#xf21c; </span> ", " (", get_yearly_data("2020", "Motorcycle")$pct, "%)" , "<br>" )),
+                                 "<span style = 'font-family:fs; color:#2f4b7c;'>&#xf1b9; </span> ", " (", get_yearly_data("2020", "Car")$pct, "%)" , "<br>",
+                                 "<span style = 'font-family:fs; color:#f95d6a;'>&#xf21c; </span> ", " (", get_yearly_data("2020", "Motorcycle")$pct, "%)" , "<br>",
+                                 "<span style = 'font-family:fs; color:#a05195;'>&#xf0d1; </span> ", " (", get_yearly_data("2020", "Truck")$pct, "%)" , "<br>",
+                                 "<span style = 'font-family:fs; color:#ffa600;'>&#xf207; </span> ", " (", get_yearly_data("2020", "Bus")$pct, "%)" , "<br>" )),
                 fill = NA, label.color = NA,
                 hjust=0.5,
-                size=3,
-                lineheight=.8,
+                size=2.5,
+                lineheight=1.3,
                 fontface="bold",family="uc",
                 color="white") +
   
