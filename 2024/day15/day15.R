@@ -85,7 +85,7 @@ tidy_dataset = dataset %>%
 
 title_text = "Vehicles in Greece"
 subtitle_text = "The vast majority of vehicles are cars."
-caption_text = "30 Day Chart Challenge, Day 15 (2024) | <b> Data:</b> Greek Statistical Authority<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+caption_text = "30 Day Chart Challenge, Day 15 (2024) | <b> Data:</b> Hellenic Statistical Authority<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 pal=c("#ffa600",
       "#2f4b7c",
