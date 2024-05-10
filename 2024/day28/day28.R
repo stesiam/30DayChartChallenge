@@ -110,6 +110,6 @@ te = ggplot(d ,aes(x = Year, y  = mean, group = name, color = name)) +
   )
 
 ggsave(
-  here::here("2024/day28/day28-cc.png"), te, width =6, height = 4
+  here::here("2024/day28/day28-2024-cc.png"), te, width =6, height = 4
 )
 

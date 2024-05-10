@@ -146,6 +146,6 @@ w = ggplot(e)+
     strip.text = element_markdown(color = "white", face = "bold", size = 12, family = "title"))
 
 ggsave(
-  "2024/day26/day26-cc.png", w, width =6, height = 4
+  "2024/day26/day26-2024-cc.png", w, width =6, height = 4
 )
 
