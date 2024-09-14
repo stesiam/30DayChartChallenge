@@ -89,13 +89,19 @@ e=all_ai_tool |>
 
 # Plot texts
 
-title_text = glue("<b>Pricing of <span style='color:black;'>AI</span> Tools by Purpose</b>")
+title_text = glue("<b>Pricing of <span style='color:#FF7F50;'>AI</span> Tools by Purpose</b>")
 subtitle_text = glue("<b>Artificial Intelligence</b> (AI) has already intervened in our lifes and it has helped us make our lifes <br>easier.
                      Till today over 5000 AI tools have been recorded for various uses such as Email Preparation, <br>Grammar
                      checking, Coding assistance, etc. Almost half of them offer paid plans. Focusing on those <br>services, I conclude that
                      AI for <b>coding</b>, <b>video</b> and <b> business</b> purposes <b><span style='font-family:title; color:#ff7f50;' >are the most expensive </span></b>.")
 caption_text = "*NOTE:* The pricing is on a monthly basis. Also the categorization of pricing is based on median charges.<br>30 Day Chart Challenge, Day 26 (2024) | <b> Data:</b> Kaggle Datasets <br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
+title_text_gr = glue("<b>Τιμολόγηση εργαλείων <span style='color:#FF7F50;'>AI</span> ανά τομέα χρήσης</b>")
+subtitle_text_gr = glue("Η <b>Τεχνητή Νοημοσύνη</b> (AI) έχει ήδη παρεισφρήσει στις ζωές μας και  έχει βοηθήσει με τη σειρά του <br>να κάνει τη ζωή μας πιο εύκολη.
+                     Μέχρι σήμερα, έχουν καταγραφεί πάνω από 5000 εργαλεία ΑΙ με<br> ποικίλες χρήσεις όπως συγγραφή email, γραμματικός έλεγχος, βοήθεια στη συγγραφή κώδικα κτλ.<br> 
+                     Σχεδόν τα μισά από αυτά προσφέρουν υπηρεσίες επί πληρωμή. Επικεντρώνοντας το ενδιαφέρον μας <br>σε αυτά τα εργαλεία συμπεραίνω ότι
+                     τα εργαλεία AI για τον <b>προγραμματισμό</b>, <b>παραγωγή βίντεο</b> και <br>  <b> επαγγελματικούς - επιχειρησιακούς </b> σκοπούς<b> <span style='font-family:serif; color:#ff7f50;' >είναι τα πιο κοστοβόρα</span></b>.")
+caption_text_gr = "*ΣΗΜΕΙΩΣΗ:* Η τιμολόγηση είναι σε μηνιαία βάση. Επίσης, η κατηγοριοποίηση έγινε με βάση τη διάμεση χρέωση.<br>30 Day Chart Challenge, Day 26 (2024) | <b> Δεδομένα: </b> Kaggle Datasets <br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 
 bg_gradient <- grid::linearGradient(colours = rev(MetBrewer::met.brewer("Kandinsky")[3:4]))
@@ -145,7 +151,52 @@ w = ggplot(e)+
     panel.spacing.y = unit(1.5, "lines"),
     strip.text = element_markdown(color = "white", face = "bold", size = 12, family = "title"))
 
+e$Category = c("3D", "Ήχος", "Επιχειρήσεις", "Προγραμματισμό", "Εικόνα", "Κείμενο", "Βίντεο")
+w_gr = ggplot(e)+
+  geom_text(aes(label = CatCharges, y = .07, x = 0, color = CatCharges), size = 5.5, hjust = 0.5, family ="serif") +
+  geom_richtext(aes(label = glue("\\# Αριθμός AI: {n} <br> Εύρος τιμής: {min} - {max}$"
+  ), y = 0.35, x = 0, color = CatCharges),
+  fill = NA, label.color = NA,
+  size = 2.7, hjust = 0.5, family ="serif") +
+  ggh4x::facet_manual(~Category, design = design) +
+  scale_y_continuous(limits = c(0, 0.5)) +
+  scale_color_manual(
+    values = c(
+      "$" = "#61bc84",
+      "$$" = "#ffffa1",
+      "$$$" = '#FF7F50'
+    )
+  ) +
+  labs(
+    title = title_text_gr,
+    subtitle = subtitle_text_gr,
+    caption = caption_text_gr,
+    x = "",
+    y = ""
+  ) +
+  theme_minimal(base_size = 12,
+                base_family = "serif") +
+  theme(
+    axis.text = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",
+    plot.background = element_rect(fill = bg_gradient),
+    plot.title = element_markdown(color = "white", family = "serif", hjust = 0.5,
+                                  margin = margin(t = 5, b = 10), size = 13),
+    plot.subtitle = element_markdown(size = 9.5, color = "white", 
+                                     lineheight = 1.2, family = "serif",
+                                     margin = margin(b = 10)),
+    plot.caption = element_markdown(color = "white", hjust = 0.5,
+                                    lineheight = 1.3, size = 8,
+                                    margin = margin(t = -5, b = 5)),
+    panel.spacing.y = unit(1.5, "lines"),
+    strip.text = element_markdown(color = "white", face = "bold", size = 12, family = "serif"))
+
+
 ggsave(
   "2024/day26/day26-2024-cc.png", w, width =6, height = 4
 )
 
+ggsave(
+  "2024/day26/day26-2024-cc-el.png", w_gr, width =6, height = 4
+)

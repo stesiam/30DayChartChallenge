@@ -62,6 +62,13 @@ subtitle_text = glue("Investigating people's interest in specific analytics soft
   data are not available.")
 caption_text = "30 Day Chart Challenge, Day 28 (2024)<br><b>Data:</b> Google Trends<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
+title_text_gr = glue("Τάσεις Aναζήτησης Εργαλείων Ανάλυσης")
+subtitle_text_gr = glue("Ερευνώντας το ενδιαφέρον των ανθρώπων για διάφορα λογισμικά ή γλώσσες προγραμματισμού <br>επικεντρωμένα στην ανάλυση δεδομένων,
+                     συμπεραίνω ότι η <b><span style='color:#019b98;'>R</span></b> (γνωστή και ως <b><span style='color:#019b98;'>Rstats</span></b>) έχει <br>καθιερωθεί στο πεδίο της ανάλυσης τη τελευταία δεκαετία
+                     έναντι του  <b><span style='color:#F18F01;'>MATLAB</span></b> και του <b><span style='color:#dd0025;'>SPSS</span></b><br>
+                     Φυσικά θα πρέπει να λάβουμε υπόψιν μας ότι τα δεδομένα της Google κάνουν αναφορά σε<br> ενδιαφέρον αναζήτησης.
+                     Άλλα στατιστικά πακέτα (EViews, JASP, jamovi etc.) δεν λαμβάνουν<br> μεγάλο όγκο αναζητήσεων, επομένως δεν υπάρχουν διαθέσιμα δεδομένα.")
+caption_text_gr = "30 Day Chart Challenge, Day 28 (2024)<br><b>Δεδομένα: </b> Google Trends<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 bg_gradient <- grid::linearGradient(colours = rev(MetBrewer::met.brewer("Pillement")[5:6]))
 
@@ -109,7 +116,54 @@ te = ggplot(d ,aes(x = Year, y  = mean, group = name, color = name)) +
     axis.line.x = element_line(linewidth = 0.5)
   )
 
+te_gr = ggplot(d ,aes(x = Year, y  = mean, group = name, color = name)) +
+  geom_point(
+    data = d %>% filter(Year == 2024), size = 10, aes(x = Year, y = mean, group = name,
+                                                      color = name)) +
+  geom_line(lwd = 3) +
+  geom_textline(aes(x = Year, y = round(mean), 
+                    color = name, label = name, group = name), size = 5, 
+                fontface = 1, hjust = 0.21, vjust = -0.3, family = "title") +
+  geom_image( data = d %>% filter(Year == 2024), aes(x=Year,y=mean,image=image, color = NULL), asp=2.2)+
+  labs(
+    title = title_text_gr,
+    subtitle = subtitle_text_gr,
+    caption = caption_text_gr,
+    y = "Τάση αναζήτησης"
+  ) +
+  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024)) +
+  scale_y_continuous(n.breaks = 5,
+                     limits = c(0, 100)) +
+  scale_color_manual(
+    values = c(
+      "R" = "#019b98",
+      "MATLAB" = "#F18F01",
+      "SPSS" = "#dd0025"
+    )) +
+  theme_minimal(base_size = 12) +
+  theme(
+    text = element_text(color = "white"),
+    plot.title = element_markdown(color = "white", family = "serif", face = "bold",
+                                  hjust = 0.5),
+    plot.subtitle = element_markdown(family = "serif", size = 10.1, lineheight = 1.1,
+                                     margin = margin(r=10, l = 10)),
+    plot.caption = element_markdown(lineheight = 1.2, size = 7),
+    plot.background = element_rect(fill = bg_gradient),
+    panel.background = element_rect(fill = "transparent", color = "transparent"),
+    legend.position = "none",
+    axis.text = element_text(color = "white", size = 10),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.grid = element_blank(),
+    axis.text.y = element_blank(),
+    axis.line.x = element_line(linewidth = 0.5)
+  )
+
 ggsave(
   here::here("2024/day28/day28-2024-cc.png"), te, width =6, height = 4
+)
+
+ggsave(
+  here::here("2024/day28/day28-2024-cc-el.png"), te_gr, width =6, height = 4
 )
 

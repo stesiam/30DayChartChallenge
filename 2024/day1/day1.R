@@ -48,83 +48,117 @@ subtitle_text = glue( "According to the latest survey of IELKA, the total sales 
     prevalent of all its competitors <br> with € <b>3.7</b> bil. in sales (32% of total market)." )
 caption_text = "30 Day Chart Challenge, Day 1 (2024) | <b> Data:</b> Panorama of The Greek Supermarkets, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
+title_text_gr = glue("<b>Τζίρος Ελληνικών Σουπερμάρκετ (2022)</b>")
+subtitle_text_gr = glue( "Σύμφωνα με τη τελευταία έκθεση του ΙΕΛΚΑ, οι συνολικές πωλήσεις ανέρχονται <br> στα € <b>11.2</b> δις. Η αλυσίδα σουπερμάρκετ <b><span style = 'color: #c6a464;'>Σκλαβενίτης</span></b> είναι αυτή
+                         με το μεγαλύτερο <br> τζίρο μεταξύ των ανταγωνιστών της με € <b>3.7</b> δις πωλήσεις (32% της αγοράς)." )
+caption_text_gr = "30 Day Chart Challenge, Day 1 (2024) <br> <b> Δεδομένα:</b> Πανόραμα ελληνικών σουπερμάρκετ, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
-p = ggplot(data) +
-  geom_arc_bar(aes(
-    x0 = 0,
-    y0 = 0,
-    r0 = 0.6,
-    r = 1,
-    amount = Value,
-    fill = Brand
-  ),
-  stat = "pie",
-  size = 1,
-  color = "#FFFFFF"
-  ) +
-  geom_richtext(
-    x = c(1.25, -1.25),
-    y = c(-0.3, 0.3),
-    aes(label = paste0(
-      glue("<b>{Brand}</b><br>"),
-      "<strong>EUR€ ",
-      round(Sales/1e9, 2),
-      "B</strong>", "<br>",
-      round(100 * Value / sum(Value), 2),
-      "%"
-    )),
-    size = 10 / .pt,
-    fill = NA,
-    label.color = NA
-  ) +
-  geom_richtext(
-    x = 0,
-    y = 0,
-    label = paste0(
-      "<span style='font-family:fs; color:#222021; font-size:30pt;'  >&#xf07a;</span><br>",
-      "Total Sales",
-      "<br><strong>EUR€ ",
-      round(sum(data$Sales) / 1e9, 2),
-      "B</strong>"
+
+get_plot = function(custom_title, custom_subtitle, custom_caption,
+                    custom_font_title = "serif",
+                    custom_font_subtitle = "serif",
+                    custom_font_caption = "serif",
+                    custom_text = "Total Sales",
+                    custom_metric = "Bn"){
+  ggplot(data) +
+    geom_arc_bar(aes(
+      x0 = 0,
+      y0 = 0,
+      r0 = 0.6,
+      r = 1,
+      amount = Value,
+      fill = Brand
     ),
-    size = 14 / .pt,
-    fill = NA,
-    label.color = NA
-  ) +
-  labs(
-    title = title_text,
-    subtitle = subtitle_text,
-    caption = caption_text
-  ) +
-  scale_x_continuous(expand = expansion(c(0.3, 0.5))) +
-  scale_fill_manual(values = c("Sklavenitis" = "#c6a464",
-                      "Other" = "grey80")) +
-  theme_void(base_size = 11.5)  +
-  theme(
-    plot.title = element_markdown(family = "js",
-                                  margin = margin(t = 10, b = 5), 
-                                  hjust = 0.5, 
-                                  color = "black",face = "bold"),
-    plot.title.position = "plot",
-    plot.subtitle = element_markdown(family = "serif",
-                                     margin = margin(t = 5, l = 10, r = 10, b = 5),
-                                     lineheight = 1.1,
-                                     color = "black"),
-    plot.background = element_rect(fill = "white", color = "white"),
-    panel.background = element_rect(fill = "white", color = "white"),
-    plot.caption = element_markdown(family = "title", margin = margin(t = 5, r = 5, b = 4), 
-                                    lineheight = 1.4,
-                                    color = "black", size = 8,
-                                    hjust = 0.5),
-    plot.margin = margin(l=8, r=8),
-    legend.position = "none"
-  )
+    stat = "pie",
+    size = 1,
+    color = "#FFFFFF"
+    ) +
+    geom_richtext(
+      x = c(1.25, -1.25),
+      y = c(-0.3, 0.3),
+      aes(label = paste0(
+        glue("<b>{Brand}</b><br>"),
+        "<strong>EUR€ ",
+        round(Sales/1e9, 2),
+        " ",
+        custom_metric,
+        "</strong>", "<br>",
+        round(100 * Value / sum(Value), 2),
+        "%"
+      )),
+      size = 10 / .pt,
+      fill = NA,
+      label.color = NA
+    ) +
+    geom_richtext(
+      x = 0,
+      y = 0,
+      label = paste0(
+        "<span style='font-family:fs; color:#222021; font-size:30pt;'  >&#xf07a;</span><br>",
+        "<br><strong>EUR€ ",
+        round(sum(data$Sales) / 1e9, 2),
+        "<br>",
+        "Billions",
+        "</strong>"
+      ),
+      size = 14 / .pt,
+      fill = NA,
+      label.color = NA
+    ) +
+    labs(
+      title = custom_title,
+      subtitle = custom_subtitle,
+      caption = custom_caption
+    ) +
+    scale_x_continuous(expand = expansion(c(0.3, 0.5))) +
+    scale_fill_manual(values = c("Sklavenitis" = "#c6a464",
+                                 "Other" = "grey80")) +
+    theme_void(base_size = 11.5)  +
+    theme(
+      plot.title = element_markdown(family = custom_font_title,
+                                    margin = margin(t = 10, b = 5), 
+                                    hjust = 0.5, 
+                                    color = "black",face = "bold"),
+      plot.title.position = "plot",
+      plot.subtitle = element_markdown(family = custom_font_subtitle,
+                                       margin = margin(t = 5, l = 10, r = 10, b = 5),
+                                       lineheight = 1.1,
+                                       color = "black"),
+      plot.background = element_rect(fill = "white", color = "white"),
+      panel.background = element_rect(fill = "white", color = "white"),
+      plot.caption = element_markdown(family = custom_font_caption, margin = margin(t = 5, r = 5, b = 4), 
+                                      lineheight = 1.4,
+                                      color = "black", size = 8,
+                                      hjust = 0.5),
+      plot.margin = margin(l=8, r=8),
+      legend.position = "none"
+    )
+}
+
+greek_viz = get_plot(custom_title = title_text_gr,
+                     custom_subtitle = subtitle_text_gr,
+                     custom_caption = caption_text_gr,
+                     custom_text = "Πωλήσεις",
+                     custom_metric = "δις")
+
+eng_viz = get_plot(custom_title = title_text,
+                               custom_subtitle = subtitle_text,
+                               custom_caption = caption_text,
+                   "js", "serif", "title")
+
 
 ggsave(
-  filename = "2024/day1/day1-2024-cc.png",
-  plot = p,
+  filename = "2024/day1/day1-2024-cc-en.png",
+  plot = eng_viz,
   device = "png",
   height = 4,
   width = 6)
 
+
+ggsave(
+  filename = "2024/day1/day1-2024-cc-el.png",
+  plot = greek_viz,
+  device = "png",
+  height = 4,
+  width = 6)
 

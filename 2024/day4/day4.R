@@ -1,4 +1,5 @@
 library(ggplot2)
+library(glue)
 library(rvest)
 library(dplyr)
 library(tidyr)
@@ -67,7 +68,8 @@ greek_cup_data = url |>
   mutate(
     TimesWon = stringr::str_remove(TimesWon, "\\)"),
     Teams = stringr::str_trim(Teams)
-  )
+  ) %>%
+  filter(Season != "2023–24")
 greek_cup_data$Teams[greek_cup_data$Teams == "–"] <- "None"
 greek_cup_data$Teams[greek_cup_data$Teams == "Ethnikos"] <- "Ethnikos_Piraeus"
   
@@ -128,6 +130,14 @@ subtitle_text =  glue("<b><span style = 'color:#D0061F;'>Olympiacos</span></b> i
     win the cup the last 80 cup seasons of which only <b>10% (8)</b> are from teams outside the<br> so-called Big5 (Olympiacos, Panathinaikos, AEK Athens, PAOK, Aris)")
 caption_text = "30 Day Chart Challenge, Day 4 (2024) | <b> Data:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
+title_text_gr = "<b> <span style='font-family:fs;'  >&#xf091;</span> Κυπελλούχοι Ελλάδας</b> (1931 - 2022) <span style='font-family:fs;'  >&#xf091;</span>"
+subtitle_text_gr = glue("O <b><span style = 'color:#D0061F;'>Ολυμπιακός</span></b> είναι η ομάδα που έχει στεφθεί περισσότερες φορές ({freq_cups_won_by_team$n[1]} κατακτήσεις) ως <br>
+                         κυπελούχος Ελλάδας ακολουθούμενος από τον <b><span style = 'color:#007841;'>Παναθηναϊκό</span></b>
+    και την <b><span style = 'color:#c8a951;'>ΑΕΚ</span></b> με {freq_cups_won_by_team$n[2]} και {freq_cups_won_by_team$n[3]}<br> κύπελλα, αντίστοιχα. Συνολικά, {freq_cups_won_by_team %>% nrow()} διαφορετικές ομάδες έχουν
+    κατακτήσει το κύπελλο τις <br>τελευταίες 80 σεζόν. Αξίζει να σημειωθεί ότι μόλις <b>8 κατακτήσεις</b> είναι από ομάδες εκτός<br> των λεγόμενων 5 μεγάλων ελληνικών ομάδων (ΟΣΦΠ, ΠΑΟ, ΑΕΚ, ΠΑΟΚ, Άρης).")
+caption_text_gr = "30 Day Chart Challenge, Day 4 (2024) | <b> Δεδομένα:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+
+
 p = ggplot(data = clean_data, aes(0,1))+
   geom_image(aes(image=Logo),size=.6) +
   facet_wrap(~Season, nrow = 5) +
@@ -159,9 +169,46 @@ p = ggplot(data = clean_data, aes(0,1))+
 )
 
 ggsave(
-  filename = "2024/day4/day4-2024-cc.png",
+  filename = "2024/day4/day4-2024-cc-en.png",
   plot = p,
   device = "png",
   height = 4,
   width = 6)
 
+p_gr = ggplot(data = clean_data, aes(0,1))+
+  geom_image(aes(image=Logo),size=.6) +
+  facet_wrap(~Season, nrow = 5) +
+  labs(
+    title = title_text_gr,
+    subtitle = subtitle_text_gr,
+    caption = caption_text_gr
+  ) +
+  theme_void() +
+  theme(
+    plot.margin = margin(l = 10, r = 10),
+    panel.background = element_rect(fill = "black", color = "black"),
+    plot.background = element_rect(fill = "black"),
+    text = element_text(color = "white"),
+    strip.text = element_markdown(size = 4.5,face = "bold", family = "serif"),
+    plot.caption = element_markdown(family = "serif", margin = margin(t = 5, r = 5, b = 4), 
+                                    lineheight = 1.4,
+                                    color = "white", size = 8,
+                                    hjust = 0.5),
+    plot.title = element_markdown(family = "serif",
+                                  margin = margin(t = 10, b = 5), 
+                                  hjust = 0.5, 
+                                  color = "white",face = "bold"),
+    plot.title.position = "plot",
+    plot.subtitle = element_markdown(family = "gp",
+                                     margin = margin(t = 5, l = 10, r = 10, b = 5),
+                                     lineheight = 1.1,
+                                     color = "white")
+  )
+
+
+ggsave(
+  filename = "2024/day4/day4-2024-cc-el.png",
+  plot = p_gr,
+  device = "png",
+  height = 4,
+  width = 6)
