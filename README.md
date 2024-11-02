@@ -8,11 +8,45 @@ My visualizations for **30DCC**. This is my first year participating on this cha
 
 ## A short overview of my 30DCC - 2024
 
-| **Day**  | **Base Geometry** | **Fonts** | **Visualization** | 
-| :-------------: | :---:| :---: |:-------------: |
-| **`Day 1`** <br> **`Part-to-Whole`** | <img src="https://ggforce.data-imaginist.com/reference/figures/logo.png" height="100"> <br> *geom_arc_bar()* <br> [ggforce](https://ggforce.data-imaginist.com/index.html)| [Josefin Slab](https://fonts.google.com/specimen/Josefin+Slab) <br><br> [Oswald](https://fonts.google.com/specimen/Oswald) |<img src="2024/day1/day1-2024-cc.png" height="250">  |
-| **`Day 4`** <br> **`Waffle`**  | *geom_image()* <br> [ggimage](https://github.com/GuangchuangYu/ggimage) | [Josefin Slab](https://fonts.google.com/specimen/Josefin+Slab)|<img src="2024/day4/day4-2024-cc.png" height="250"> |
-| **`Day 15`** <br> **`Historical`**| *geom_stream()* <br> [ggstream](https://github.com/davidsjoberg/ggstream)| [Jost](https://fonts.google.com/specimen/Jost) <br><br> [Oswald](https://fonts.google.com/specimen/Oswald) <br><br>[Ubuntu Condensed](https://fonts.google.com/specimen/Ubuntu+Condensed) |<img src="2024/day15/day15_dark-2024-cc.png" height="250"> |
-| **`Day 23`** <br> **`Tiles`**| *geom_waffle()* <br> [waffle](https://github.com/hrbrmstr/waffle)| [Jost](https://fonts.google.com/specimen/Jost) <br><br>[Ubuntu Condensed](https://fonts.google.com/specimen/Ubuntu+Condensed) |<img src="2024/day23/day23-2024-cc.png" height="250"> |
-| **`Day 26`** <br> **`AI`**| *geom_waffle* <br> [waffle](https://github.com/hrbrmstr/waffle) <br> <br> *facet_manual* <br> [ggh4x]() | [Jost](https://fonts.google.com/specimen/Jost) <br><br>[Ubuntu Condensed](https://fonts.google.com/specimen/Ubuntu+Condensed) |<img src="2024/day26/day26-2024-cc.png" height="250"> |
-| **`Day 28`** <br> **`Trend`**| *geom_image()* <br> [ggimage](https://github.com/GuangchuangYu/ggimage)| [Jost](https://fonts.google.com/specimen/Jost) <br><br>[Ubuntu Condensed](https://fonts.google.com/specimen/Ubuntu+Condensed) |<img src="2024/day28/day28-2024-cc.png" height="250"> |
+### **1. Part-to-Whole**
+
+**Date:** `Day 1` <br>
+**Geometry:** *geom_arc_bar()* ([ggforce](https://ggforce.data-imaginist.com/index.html))<br>
+**Source:** -- <br>
+<img src="2024/day1/day1-2024-cc-en.png" width="500">
+
+### **2. Waffle**
+
+**Date:** `Day 4` <br>
+**Geometry:** *geom_image()* ([ggimage](https://github.com/GuangchuangYu/ggimage))<br>
+**Source:** -- <br>
+<img src="2024/day4/day4-2024-cc-en.png" width="500">
+
+### **3. Historical**
+
+**Date:** `Day 15` <br>
+**Geometry:** *geom_stream()* ([ggstream](https://github.com/davidsjoberg/ggstream))<br>
+**Source:** -- <br>
+<img src="2024/day15/day15_dark-2024-cc.png" width="500">
+
+
+### **4. Tiles**
+
+**Date:** `Day 23` <br>
+**Geometry:** *geom_waffle()* ([waffle](https://github.com/hrbrmstr/waffle))<br>
+**Source:** -- <br>
+<img src="2024/day23/day23-2024-cc.png" width="500">
+
+### **5. AI**
+
+**Date:** `Day 26` <br>
+**Geometry:** *geom_waffle()* ([waffle](https://github.com/hrbrmstr/waffle)) & *facet_manual()* ([ggh4x](https://teunbrand.github.io/ggh4x/))<br>
+**Source:** -- <br>
+<img src="2024/day26/day26-2024-cc.png" width="500">
+
+### **6. Trend**
+
+**Date:** `Day 28` <br>
+**Geometry:** *geom_image()* ([ggimage](https://github.com/GuangchuangYu/ggimage))<br>
+**Source:** -- <br>
+<img src="2024/day28/day28-2024-cc.png" width="500">
