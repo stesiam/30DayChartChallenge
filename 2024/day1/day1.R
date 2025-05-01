@@ -28,29 +28,29 @@ showtext::showtext_opts(dpi = 300)
 
 # Source: https://selfservice.gr/panorama-ton-ellinikon-souper-market-2023-i-chrimatooikonomiki-eikona-42-alysidon-souper-market-to-2022/
 
-sklavenitis_sales_2022 = 3714124000
-sm_sales = 11417257000
-
-col  = c("grey90", "#c6a464")
-
-ratio = sklavenitis_sales_2022/sm_sales
+sm_sales = 14.8
 
 data = data.frame(
-  "Brand" = c("Sklavenitis", "Other"),
-  "Value" = c(ratio, 1-ratio),
-  "Sales" = c(sklavenitis_sales_2022, sm_sales - sklavenitis_sales_2022),
-  "col"  = c("#c6a464", "grey95")
+  "Brand" = c("Sklavenitis", "LIDL", "AB", "Metro", "Masoutis", "Kritikos","Other"),
+  "BrandGR" = c("Σκλαβενίτης", "LIDL", "ΑΒ", "Metro", "Μασούτης", "Κρητικός","Άλλο"),
+  "Sales" = c(5.35, 2, 1.94, 1.65, 1.15, 0.78, sm_sales - 5.35 - 2 - 1.94 - 1.65 - 1.15 - 0.78),
+  "col"  = c("#c6a464", "#fff200", "cyan4", "red", "blue4", "red4","grey95"),
+  "Image" = c("https://www.sklavenitis.gr/favicon.ico", 
+              "https://www.lidl-hellas.gr/static/assets/lidl-onlineshop-hellas-271731.svg", 
+              "https://static.ab.gr/static/next/icons/favicon.png",
+              "https://www.metrocashandcarry.gr/assets/img/logo_metro.svg",
+              NA, NA, NA)
 )
 
 title_text = glue("<b>Supermarkets' Sales in Greece (2022)</b>")
 subtitle_text = glue( "According to the latest survey of IELKA, the total sales of Greek 
-    supermarkets are <br> amounted to € <b>11.2</b> bil. <b><span style = 'color: #c6a464;'>Sklavenitis</span></b> is by far the most
-    prevalent of all its competitors <br> with € <b>3.7</b> bil. in sales (32% of total market)." )
+    supermarkets are <br> amounted to € <b>14.8</b> bil. <b><span style = 'color: #c6a464;'>Sklavenitis</span></b> is by far the most
+    prevalent of all its competitors <br> with € <b>5.35</b> bil. in sales (36% of total market)." )
 caption_text = "30 Day Chart Challenge, Day 1 (2024) | <b> Data:</b> Panorama of The Greek Supermarkets, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 title_text_gr = glue("<b>Τζίρος Ελληνικών Σουπερμάρκετ (2022)</b>")
 subtitle_text_gr = glue( "Σύμφωνα με τη τελευταία έκθεση του ΙΕΛΚΑ, οι συνολικές πωλήσεις ανέρχονται <br> στα € <b>11.2</b> δις. Η αλυσίδα σουπερμάρκετ <b><span style = 'color: #c6a464;'>Σκλαβενίτης</span></b> είναι αυτή
-                         με το μεγαλύτερο <br> τζίρο μεταξύ των ανταγωνιστών της με € <b>3.7</b> δις πωλήσεις (32% της αγοράς)." )
+                         με το μεγαλύτερο <br> τζίρο μεταξύ των ανταγωνιστών της με € <b>5.35</b> δις πωλήσεις (36% της αγοράς)." )
 caption_text_gr = "30 Day Chart Challenge, Day 1 (2024) <br> <b> Δεδομένα:</b> Πανόραμα ελληνικών σουπερμάρκετ, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
 
 
@@ -66,37 +66,33 @@ get_plot = function(custom_title, custom_subtitle, custom_caption,
       y0 = 0,
       r0 = 0.6,
       r = 1,
-      amount = Value,
+      amount = Sales,
       fill = Brand
     ),
     stat = "pie",
-    size = 1,
     color = "#FFFFFF"
     ) +
     geom_richtext(
-      x = c(1.25, -1.25),
-      y = c(-0.3, 0.3),
+      x = c(1.25, 0.3, -0.3, -0.75, -0.78, -0.65,-0.3),
+      y = c(0, -0.72, -0.75, -0.3, 0.1, 0.43, 0.7),
+      angle = c(rep(0, 5), -30, 0),
+      color = c(rep("black",3), rep("white", 3), "black"),
       aes(label = paste0(
         glue("<b>{Brand}</b><br>"),
-        "<strong>EUR€ ",
-        round(Sales/1e9, 2),
-        " ",
-        custom_metric,
-        "</strong>", "<br>",
-        round(100 * Value / sum(Value), 2),
+        round(100 * Sales / sum(Sales), 1),
         "%"
       )),
-      size = 10 / .pt,
+      size = 9 / .pt,
       fill = NA,
       label.color = NA
-    ) +
+     ) +
     geom_richtext(
       x = 0,
       y = 0,
       label = paste0(
         "<span style='font-family:fs; color:#222021; font-size:30pt;'  >&#xf07a;</span><br>",
         "<br><strong>EUR€ ",
-        round(sum(data$Sales) / 1e9, 2),
+        round(sum(data$Sales), 2),
         "<br>",
         "Billions",
         "</strong>"
@@ -105,14 +101,21 @@ get_plot = function(custom_title, custom_subtitle, custom_caption,
       fill = NA,
       label.color = NA
     ) +
+    geom_image(
+      x = c(0.75, 0.35, -0.25, -1, -1.2, NA, NA),
+      y = c(0.2, -1, -1, -0.5, 0.2, NA, NA),
+      size = c(rep(0.1,3), 0.2, 0.2, 0.2, 0.2),
+      aes(image = Image)
+    ) +
     labs(
       title = custom_title,
       subtitle = custom_subtitle,
       caption = custom_caption
     ) +
     scale_x_continuous(expand = expansion(c(0.3, 0.5))) +
-    scale_fill_manual(values = c("Sklavenitis" = "#c6a464",
-                                 "Other" = "grey80")) +
+    scale_fill_manual(values = c("Sklavenitis" = "#c6a464", "LIDL" = "#fff200", "AB" ="cyan4", 
+                                 "Metro" = "red", "Masoutis" = "blue4", "Kritikos" = "red4",
+                                 "Other" = "grey95")) +
     theme_void(base_size = 11.5)  +
     theme(
       plot.title = element_markdown(family = custom_font_title,
