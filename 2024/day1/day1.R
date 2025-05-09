@@ -1,6 +1,7 @@
 library(dplyr)
 library(ggplot2)
 library(ggtext)
+library(ggimage)
 library(glue)
 library(ggforce)
 
@@ -151,7 +152,7 @@ eng_viz = get_plot(custom_title = title_text,
 
 
 ggsave(
-  filename = "2024/day1/day1-2024-cc-en.png",
+  filename = "2024/day1/day1-2024-cc-en-light.png",
   plot = eng_viz,
   device = "png",
   height = 4,
@@ -159,7 +160,7 @@ ggsave(
 
 
 ggsave(
-  filename = "2024/day1/day1-2024-cc-el.png",
+  filename = "2024/day1/day1-2024-cc-el-light.png",
   plot = greek_viz,
   device = "png",
   height = 4,
