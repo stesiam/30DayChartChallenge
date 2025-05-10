@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(ggimage)
 library(ggtext)
 library(glue)
 library(ggforce)
