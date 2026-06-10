@@ -6,209 +6,206 @@ library(tidyr)
 library(ggimage)
 library(ggtext)
 library(stringr)
-
 library(showtext)
 library(sysfonts)
 
-## Load fonts
-
-sysfonts::font_add_google("Oswald", "title")
-sysfonts::font_add_google("Josefin Slab","js")
-sysfonts::font_add_google("Cabin Condensed","cc")
+sysfonts::font_add_google("Oswald",           "oswald")
 sysfonts::font_add_google("Ubuntu Condensed", "uc")
-
-#sysfonts::font_add_google("Gentium Plus", "gp")
-sysfonts::font_add('gp',"/home/stelios/Downloads/Gentium_Plus/GentiumPlus-Regular.ttf")
-
-sysfonts::font_add('fb', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Brands-Regular-400.otf')
-sysfonts::font_add('fs', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Free-Solid-900.otf')
-
+sysfonts::font_add('fb', '/home/stelios/Documents/otfs/Font Awesome 6 Brands-Regular-400.otf')
+sysfonts::font_add('fs', '/home/stelios/Documents/otfs/Font Awesome 6 Free-Solid-900.otf')
 
 showtext_auto()
 showtext::showtext_opts(dpi = 300)
 
-
-# Custom function to get club emblems
-get_teams_emblem = function(team_name){
-  if (team_name == "AEL"){
-    team_name = "Athlitiki_Enosi_Larissa"
-  } else if (team_name == "OFI"){
-    team_name = "OFI_Crete" 
-  }
-  url = paste0("https://en.wikipedia.org/wiki/", team_name, "_F.C.")
-  
-  image_url = read_html(url) |>
+# --- Logo download helper ---
+get_teams_emblem <- function(team_name) {
+  wiki_name <- switch(team_name,
+    "AEL" = "Athlitiki_Enosi_Larissa",
+    "OFI" = "OFI_Crete",
+    team_name
+  )
+  url       <- paste0("https://en.wikipedia.org/wiki/", wiki_name, "_F.C.")
+  image_url <- read_html(url) |>
     html_element("body") |>
     html_element(".mw-content-container") |>
     html_element(".infobox") |>
     html_element("img") |>
     html_attr("src")
-  
-  x = paste0("https:", image_url)
-  download.file(x, destfile = paste0("2024/day2/team_logos/", team_name, ".png"))
+  download.file(
+    paste0("https:", image_url),
+    destfile = paste0("2024/day4/team_logos/", wiki_name, ".png")
+  )
 }
 
+# --- Scrape ---
+url <- "https://en.wikipedia.org/wiki/Greek_Football_Cup"
 
-url = "https://en.wikipedia.org/wiki/Greek_Football_Cup"
-
-
-read_html(url)
-
-
-greek_cup_data = url |>
+greek_cup_data <- url |>
   read_html() %>%
   html_element("body") %>%
   html_elements(".div-col") %>%
   html_elements("li") %>%
   html_text2() %>%
   as.data.frame() %>%
-  setNames(c("Var1")) %>%
+  setNames("Var1") %>%
   separate(Var1, into = c("Season", "Teams"), sep = ": ") %>%
-  separate(Teams, into = c("Teams", "TimesWon"), sep = "\\(") %>%
+  separate(Teams, into = c("Teams", "TimesWon"), sep = "\\(", fill = "right") %>%
   mutate(
-    TimesWon = stringr::str_remove(TimesWon, "\\)"),
-    Teams = stringr::str_trim(Teams)
-  ) %>%
-  filter(Season != "2023–24")
-greek_cup_data$Teams[greek_cup_data$Teams == "–"] <- "None"
-greek_cup_data$Teams[greek_cup_data$Teams == "Ethnikos"] <- "Ethnikos_Piraeus"
-  
-
-teams = greek_cup_data$Teams %>% unique()
-for (team in teams){
-  if(team == "None"){
-    next
-  }
-  get_teams_emblem(team)
-}
-
-# Make data frame with emblems
-
-logos = data.frame(
-  "Teams" = c("AEK", "Ethnikos_Piraeus", "Panathinaikos", "Olympiacos", "None",
-              "Aris", "PAOK", "Iraklis", "Panionios", "Kastoria","AEL","OFI"),
-  "Logo" = c("AEK.png", "Ethnikos_Piraeus.png", "Panathinaikos.png", "Olympiacos.png",
-             "", "Aris.png", "PAOK.png", "Iraklis.png", "Panionios.png", "Kastoria.png",
-             "Athlitiki_Enosi_Larissa.png", "ofi.png")
-)
-dest = "2024/day4/team_logos/"
-logos$Logo = paste0(dest, logos$Logo)
-
-
-## Join Logo data frame with data 
-
-clean_data = left_join(x = greek_cup_data, y = logos, by = "Teams") %>%
- dplyr::filter(Teams != "None")
-clean_data$id = rep(20:1, 4)
-## Viz
-
-freq_cups_won_by_team = clean_data %>%
-  group_by(Teams) %>%
-  summarise(n = n()) %>%
-  arrange(-n) 
-
-freq_cups_won_by_team_big5 = freq_cups_won_by_team %>%
-  mutate(
-    Big5 = ifelse(Teams %in% c("Panathinaikos", "Olympiacos", "AEK",
-                               "PAOK", "Aris"), TRUE, FALSE),
-    total_cups = sum(n)
-  ) %>%
-  group_by(Big5) %>%
-  summarise(pct = sum(n)/total_cups)
-
-freq_cups_won_by_team$n[1]
-
-freq_cups_won_by_team %>% nrow()
-str_remove(clean_data$Season, "-.*")
-
-# Problem: I had to set x and y values. I set them as constants (0 and 1)
-clean_data
-
-title_text = "<b> <span style='font-family:fs;'  >&#xf091;</span> Greek Football Cup</b> (1931 - 2022) <span style='font-family:fs;'  >&#xf091;</span>"
-subtitle_text =  glue("<b><span style = 'color:#D0061F;'>Olympiacos</span></b> is the team that has won <b>GFC</b> most times ({freq_cups_won_by_team$n[1]}) followed by <b><span style = 'color:#007841;'>Panathinaikos</span><br></b>
-    and <b><span style = 'color:#c8a951;'>AEK Athens</span></b> with {freq_cups_won_by_team$n[2]} and {freq_cups_won_by_team$n[3]} cups, respectively. In total, {freq_cups_won_by_team %>% nrow()} teams have succeeded to <br>
-    win the cup the last 80 cup seasons of which only <b>10% (8)</b> are from teams outside the<br> so-called Big5 (Olympiacos, Panathinaikos, AEK Athens, PAOK, Aris)")
-caption_text = "30 Day Chart Challenge, Day 4 (2024) | <b> Data:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
-
-title_text_gr = "<b> <span style='font-family:fs;'  >&#xf091;</span> Κυπελλούχοι Ελλάδας</b> (1931 - 2022) <span style='font-family:fs;'  >&#xf091;</span>"
-subtitle_text_gr = glue("O <b><span style = 'color:#D0061F;'>Ολυμπιακός</span></b> είναι η ομάδα που έχει στεφθεί περισσότερες φορές ({freq_cups_won_by_team$n[1]} κατακτήσεις) ως <br>
-                         κυπελούχος Ελλάδας ακολουθούμενος από τον <b><span style = 'color:#007841;'>Παναθηναϊκό</span></b>
-    και την <b><span style = 'color:#c8a951;'>ΑΕΚ</span></b> με {freq_cups_won_by_team$n[2]} και {freq_cups_won_by_team$n[3]}<br> κύπελλα, αντίστοιχα. Συνολικά, {freq_cups_won_by_team %>% nrow()} διαφορετικές ομάδες έχουν
-    κατακτήσει το κύπελλο τις <br>τελευταίες 80 σεζόν. Αξίζει να σημειωθεί ότι μόλις <b>8 κατακτήσεις</b> είναι από ομάδες εκτός<br> των λεγόμενων 5 μεγάλων ελληνικών ομάδων (ΟΣΦΠ, ΠΑΟ, ΑΕΚ, ΠΑΟΚ, Άρης).")
-caption_text_gr = "30 Day Chart Challenge, Day 4 (2024) | <b> Δεδομένα:</b> Wikipedia<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
-
-
-p = ggplot(data = clean_data, aes(0,1))+
-  geom_image(aes(image=Logo),size=.6) +
-  facet_wrap(~Season, nrow = 5) +
-  labs(
-    title = title_text,
-    subtitle = subtitle_text,
-    caption = caption_text
-  ) +
-  theme_void() +
-  theme(
-    plot.margin = margin(l = 10, r = 10),
-    panel.background = element_rect(fill = "black", color = "black"),
-    plot.background = element_rect(fill = "black"),
-    text = element_text(color = "white"),
-    strip.text = element_markdown(size = 4.5,face = "bold", family = "serif"),
-    plot.caption = element_markdown(family = "title", margin = margin(t = 5, r = 5, b = 4), 
-                                    lineheight = 1.4,
-                                    color = "white", size = 8,
-                                    hjust = 0.5),
-    plot.title = element_markdown(family = "js",
-                                  margin = margin(t = 10, b = 5), 
-                                  hjust = 0.5, 
-                                  color = "white",face = "bold"),
-    plot.title.position = "plot",
-    plot.subtitle = element_markdown(family = "js",
-                                     margin = margin(t = 5, l = 10, r = 10, b = 5),
-                                     lineheight = 1.1,
-                                     color = "white")
-)
-
-ggsave(
-  filename = "2024/day4/day4-2024-cc-en.png",
-  plot = p,
-  device = "png",
-  height = 4,
-  width = 6)
-
-p_gr = ggplot(data = clean_data, aes(0,1))+
-  geom_image(aes(image=Logo),size=.6) +
-  facet_wrap(~Season, nrow = 5) +
-  labs(
-    title = title_text_gr,
-    subtitle = subtitle_text_gr,
-    caption = caption_text_gr
-  ) +
-  theme_void() +
-  theme(
-    plot.margin = margin(l = 10, r = 10),
-    panel.background = element_rect(fill = "black", color = "black"),
-    plot.background = element_rect(fill = "black"),
-    text = element_text(color = "white"),
-    strip.text = element_markdown(size = 4.5,face = "bold", family = "serif"),
-    plot.caption = element_markdown(family = "serif", margin = margin(t = 5, r = 5, b = 4), 
-                                    lineheight = 1.4,
-                                    color = "white", size = 8,
-                                    hjust = 0.5),
-    plot.title = element_markdown(family = "serif",
-                                  margin = margin(t = 10, b = 5), 
-                                  hjust = 0.5, 
-                                  color = "white",face = "bold"),
-    plot.title.position = "plot",
-    plot.subtitle = element_markdown(family = "gp",
-                                     margin = margin(t = 5, l = 10, r = 10, b = 5),
-                                     lineheight = 1.1,
-                                     color = "white")
+    TimesWon = str_remove(TimesWon, "\\)"),
+    Teams    = str_trim(Teams)
   )
 
+greek_cup_data$Teams[greek_cup_data$Teams == "–"]               <- "None"
+greek_cup_data$Teams[greek_cup_data$Teams == "Ethnikos"]         <- "Ethnikos_Piraeus"
+greek_cup_data$Teams[greek_cup_data$Teams == "Ethnikos Piraeus"] <- "Ethnikos_Piraeus"
+greek_cup_data$Teams[greek_cup_data$Teams == "AEK Athens"]       <- "AEK"
 
-ggsave(
-  filename = "2024/day4/day4-2024-cc-el.png",
-  plot = p_gr,
-  device = "png",
-  height = 4,
-  width = 6)
+# --- Download missing logos ---
+for (team in unique(greek_cup_data$Teams)) {
+  if (team == "None") next
+  wiki_name <- switch(team,
+    "AEL" = "Athlitiki_Enosi_Larissa",
+    "OFI" = "OFI_Crete",
+    team
+  )
+  destfile <- paste0("2024/day4/team_logos/", wiki_name, ".png")
+  if (file.exists(destfile)) next
+  tryCatch(
+    get_teams_emblem(team),
+    error = function(e) message("Skipped: ", team, " — ", conditionMessage(e))
+  )
+}
+
+# --- Logos lookup ---
+logos <- data.frame(
+  Teams = c("AEK", "Ethnikos_Piraeus", "Panathinaikos", "Olympiacos", "None",
+            "Aris", "PAOK", "Iraklis", "Panionios", "Kastoria", "AEL", "OFI"),
+  Logo  = c("AEK.png", "Ethnikos_Piraeus.png", "Panathinaikos.png", "Olympiacos.png",
+            "", "Aris.png", "PAOK.png", "Iraklis.png", "Panionios.png", "Kastoria.png",
+            "Athlitiki_Enosi_Larissa.png", "ofi.png")
+)
+logos$Logo <- paste0("2024/day4/team_logos/", logos$Logo)
+
+# --- Join & compute stats ---
+clean_data <- left_join(greek_cup_data, logos, by = "Teams") %>%
+  filter(Teams != "None") %>%
+  filter(as.integer(str_extract(Season, "^\\d+")) <= 2022)
+
+freq_cups <- clean_data %>%
+  group_by(Teams) %>%
+  summarise(n = n()) %>%
+  arrange(-n)
+
+big5         <- c("Panathinaikos", "Olympiacos", "AEK", "PAOK", "Aris")
+n_seasons    <- nrow(clean_data)
+n_teams      <- nrow(freq_cups)
+non_big5_n   <- freq_cups %>% filter(!Teams %in% big5) %>% pull(n) %>% sum()
+non_big5_pct <- round(non_big5_n / n_seasons * 100)
+
+season_range <- paste0(
+  str_extract(min(clean_data$Season), "^\\d+"), " – ",
+  str_extract(max(clean_data$Season), "^\\d+")
+)
+
+# --- Texts ---
+en_title <- glue(
+  "<b><span style='font-family:fs;'>&#xf091;</span> ",
+  "Greek Football Cup</b> ({season_range}) ",
+  "<span style='font-family:fs;'>&#xf091;</span>"
+)
+en_subtitle <- glue(
+  "<b><span style='color:#D0061F;'>Olympiacos</span></b> leads with <b>{freq_cups$n[1]}</b> titles, ",
+  "followed by <b><span style='color:#007841;'>Panathinaikos</span></b> ({freq_cups$n[2]}) ",
+  "and <b><span style='color:#c8a951;'>AEK Athens</span></b> ({freq_cups$n[3]}). ",
+  "Across {n_seasons} editions, {n_teams} clubs have lifted the trophy. ",
+  "Only <b>{non_big5_pct}% ({non_big5_n} titles)</b> went to clubs outside the Big 5."
+)
+en_caption <- paste0(
+  "30 Day Chart Challenge, Day 4 (2024) | <b>Data:</b> Wikipedia<br>",
+  "<span style='font-family:fb;'>&#xf09b;</span> <b>stesiam</b>, 2024"
+)
+
+gr_title <- glue(
+  "<b><span style='font-family:fs;'>&#xf091;</span> ",
+  "Κυπελλούχοι Ελλάδας</b> ({season_range}) ",
+  "<span style='font-family:fs;'>&#xf091;</span>"
+)
+gr_subtitle <- glue(
+  "Ο <b><span style='color:#D0061F;'>Ολυμπιακός</span></b> πρωτοστατεί με <b>{freq_cups$n[1]}</b> κατακτήσεις, ",
+  "ακολουθούμενος από τον <b><span style='color:#007841;'>Παναθηναϊκό</span></b> ({freq_cups$n[2]}) ",
+  "και την <b><span style='color:#c8a951;'>ΑΕΚ</span></b> ({freq_cups$n[3]}). ",
+  "Σε {n_seasons} διοργανώσεις, {n_teams} ομάδες έχουν κατακτήσει το Κύπελλο. ",
+  "Μόνο <b>{non_big5_pct}% ({non_big5_n} κατακτήσεις)</b> ανήκουν σε ομάδες εκτός των 5 μεγάλων."
+)
+gr_caption <- paste0(
+  "30 Day Chart Challenge, Day 4 (2024) | <b>Δεδομένα:</b> Wikipedia<br>",
+  "<span style='font-family:fb;'>&#xf09b;</span> <b>stesiam</b>, 2024"
+)
+
+# --- Plot function ---
+make_plot <- function(title_text, subtitle_text, caption_text, font,
+                      bg, panel_bg, text_color, subtle_color, strip_color) {
+  ggplot(clean_data, aes(0, 1)) +
+    geom_image(aes(image = Logo), size = 0.51) +
+    facet_wrap(~Season, nrow = 5) +
+    labs(title = title_text, subtitle = subtitle_text, caption = caption_text) +
+    theme_void() +
+    theme(
+      plot.margin          = margin(l = 10, r = 10, t = 5, b = 5),
+      panel.background     = element_rect(fill = panel_bg, color = NA),
+      plot.background      = element_rect(fill = bg,       color = NA),
+      plot.title.position  = "plot",
+      strip.text           = element_markdown(
+        size = 6.3, face = "bold", family = font,
+        color = strip_color, margin = margin(b = 2)
+      ),
+      plot.title    = element_markdown(
+        family = font, size = 13, hjust = 0.5, color = text_color,
+        margin = margin(t = 10, b = 4)
+      ),
+      plot.subtitle = element_textbox_simple(
+        family = font, size = 9, halign = 0.5, color = subtle_color,
+        lineheight = 1.35, margin = margin(t = 2, b = 14),
+        padding = margin(l = 10, r = 10)
+      ),
+      plot.caption  = element_markdown(
+        family = font, size = 7, hjust = 0.5, color = subtle_color,
+        lineheight = 1.4, margin = margin(t = 4, b = 2)
+      )
+    )
+}
+
+plots <- list(
+  list(lang = "en", theme = "light", font = "oswald",
+       bg = "#F9F9F9", panel_bg = "#F9F9F9", text_color = "grey10",
+       subtle_color = "grey40", strip_color = "grey30",
+       title = en_title, subtitle = en_subtitle, caption = en_caption),
+  list(lang = "en", theme = "dark",   font = "oswald",
+       bg = "black",   panel_bg = "black",   text_color = "white",
+       subtle_color = "grey70", strip_color = "grey65",
+       title = en_title, subtitle = en_subtitle, caption = en_caption),
+  list(lang = "el", theme = "light", font = "uc",
+       bg = "#F9F9F9", panel_bg = "#F9F9F9", text_color = "grey10",
+       subtle_color = "grey40", strip_color = "grey30",
+       title = gr_title, subtitle = gr_subtitle, caption = gr_caption),
+  list(lang = "el", theme = "dark",   font = "uc",
+       bg = "black",   panel_bg = "black",   text_color = "white",
+       subtle_color = "grey70", strip_color = "grey65",
+       title = gr_title, subtitle = gr_subtitle, caption = gr_caption)
+)
+
+for (p in plots) {
+  plt <- make_plot(
+    p$title, p$subtitle, p$caption, font = p$font,
+    bg = p$bg, panel_bg = p$panel_bg, text_color = p$text_color,
+    subtle_color = p$subtle_color, strip_color = p$strip_color
+  )
+  ggsave(
+    filename = glue("2024/day4/day4-2024-{p$theme}-{p$lang}.png"),
+    plot     = plt,
+    device   = "png",
+    height   = 4.5,
+    width    = 7,
+    dpi      = 300
+  )
+}

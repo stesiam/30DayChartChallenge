@@ -1,6 +1,5 @@
 library(readr)
 library(dplyr)
-
 library(lubridate)
 library(ggplot2)
 library(glue)
@@ -10,160 +9,152 @@ library(sysfonts)
 library(ggimage)
 library(geomtextpath)
 
-
-sysfonts::font_add_google("Outfit", "title")
-sysfonts::font_add_google("Ubuntu Condensed", "uc")
-sysfonts::font_add_google("Jost", "jost")
-
-sysfonts::font_add('fb', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Brands-Regular-400.otf')
-sysfonts::font_add('fs', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Free-Solid-900.otf')
-
+## Load fonts
+sysfonts::font_add_google("Outfit",        "outfit")
+sysfonts::font_add_google("Jost",          "jost")
+sysfonts::font_add_google("Noto Sans",     "noto_sans")
+sysfonts::font_add_google("Source Sans 3", "source_sans")
+sysfonts::font_add('fb', '/home/stelios/Documents/otfs/Font Awesome 6 Brands-Regular-400.otf')
+sysfonts::font_add('fs', '/home/stelios/Documents/otfs/Font Awesome 6 Free-Solid-900.otf')
 
 showtext_auto()
 showtext::showtext_opts(dpi = 300)
 
-here::here("2024/day28")
+# --- Data ---
+trends <- read_csv("2024/day28/AnalyticsTrends.csv", skip = 1)
 
-
-trends <- read_csv("2024/day28/AnalyticsTrends.csv", 
-                            skip = 1)
-
-d = trends |>
+d <- trends |>
   setNames(c("Month", "R", "SPSS", "MATLAB")) |>
   mutate(
     Month = lubridate::ym(Month),
-    Year = year(Month)
+    Year  = year(Month)
   ) |>
-  dplyr::relocate(Year, .before = "Month") |>
   select(-Month) |>
-  tidyr::pivot_longer(
-    cols = !c("Year")
-  ) |>
+  tidyr::pivot_longer(cols = !Year) |>
   group_by(Year, name) |>
-  summarise(
-    mean = mean(value)
-  ) |>
+  summarise(mean = mean(value), .groups = "drop") |>
   mutate(
     image = case_when(
-      name == "R" ~ "2024/day28/www/Rlang.png",
+      name == "R"    ~ "2024/day28/www/Rlang.png",
       name == "SPSS" ~ "2024/day28/www/spss.png",
-      TRUE ~ "2024/day28/www/matlab.png"
+      TRUE           ~ "2024/day28/www/matlab.png"
     )
   )
 
-## Viz texts
+d_end <- d |> filter(Year == max(Year))
 
-title_text = glue("Search Trends in Analytics Tools")
-subtitle_text = glue("Investigating people's interest in specific analytics software or programming language,
-                     I concluded that <br><b><span style='color:#019b98;'>R</span></b> (also known as <b><span style='color:#019b98;'>Rstats</span></b>) has finally prevailed in analytics field the last decade 
-                     over  <b><span style='color:#F18F01;'>MATLAB</span></b> &  <b><span style='color:#dd0025;'>SPSS</span></b><br>
-                     Of course we should take into consideration that Google's data are referring to search interest.
-                     Other <br> Statistical Software (EViews, JASP, jamovi etc.) have not getting much searches, so
-  data are not available.")
-caption_text = "30 Day Chart Challenge, Day 28 (2024)<br><b>Data:</b> Google Trends<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+# --- Texts ---
+en_title    <- "Search Trends in Analytics Tools"
+en_subtitle <- glue(
+  "Investigating people's interest in specific analytics software or programming language, ",
+  "I concluded that <b><span style='color:#019b98;'>R</span></b> (also known as <b><span style='color:#019b98;'>Rstats</span></b>) ",
+  "has finally prevailed in the analytics field over the last decade, surpassing ",
+  "<b><span style='color:#F18F01;'>MATLAB</span></b> & <b><span style='color:#dd0025;'>SPSS</span></b>. ",
+  "Note that Google data refer to search interest only. Other statistical software ",
+  "(EViews, JASP, jamovi etc.) receive too few searches to appear."
+)
+en_caption  <- "30 Day Chart Challenge, Day 28 (2024)<br><b>Data:</b> Google Trends<br><span style='font-family:fb;'>&#xf09b;</span> <b>stesiam</b>, 2024"
 
-title_text_gr = glue("Τάσεις Aναζήτησης Εργαλείων Ανάλυσης")
-subtitle_text_gr = glue("Ερευνώντας το ενδιαφέρον των ανθρώπων για διάφορα λογισμικά ή γλώσσες προγραμματισμού <br>επικεντρωμένα στην ανάλυση δεδομένων,
-                     συμπεραίνω ότι η <b><span style='color:#019b98;'>R</span></b> (γνωστή και ως <b><span style='color:#019b98;'>Rstats</span></b>) έχει <br>καθιερωθεί στο πεδίο της ανάλυσης τη τελευταία δεκαετία
-                     έναντι του  <b><span style='color:#F18F01;'>MATLAB</span></b> και του <b><span style='color:#dd0025;'>SPSS</span></b><br>
-                     Φυσικά θα πρέπει να λάβουμε υπόψιν μας ότι τα δεδομένα της Google κάνουν αναφορά σε<br> ενδιαφέρον αναζήτησης.
-                     Άλλα στατιστικά πακέτα (EViews, JASP, jamovi etc.) δεν λαμβάνουν<br> μεγάλο όγκο αναζητήσεων, επομένως δεν υπάρχουν διαθέσιμα δεδομένα.")
-caption_text_gr = "30 Day Chart Challenge, Day 28 (2024)<br><b>Δεδομένα: </b> Google Trends<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+el_title    <- "Τάσεις Αναζήτησης Εργαλείων Ανάλυσης"
+el_subtitle <- glue(
+  "Ερευνώντας το ενδιαφέρον για διάφορα λογισμικά ή γλώσσες προγραμματισμού ανάλυσης δεδομένων, ",
+  "συμπεραίνω ότι η <b><span style='color:#019b98;'>R</span></b> (γνωστή και ως <b><span style='color:#019b98;'>Rstats</span></b>) ",
+  "έχει καθιερωθεί στο πεδίο της ανάλυσης την τελευταία δεκαετία έναντι του ",
+  "<b><span style='color:#F18F01;'>MATLAB</span></b> και του <b><span style='color:#dd0025;'>SPSS</span></b>. ",
+  "Τα δεδομένα της Google αναφέρονται σε ενδιαφέρον αναζήτησης. Άλλα πακέτα ",
+  "(EViews, JASP, jamovi κ.ά.) δεν λαμβάνουν αρκετές αναζητήσεις ώστε να εμφανιστούν."
+)
+el_caption  <- "30 Day Chart Challenge, Day 28 (2024)<br><b>Δεδομένα:</b> Google Trends<br><span style='font-family:fb;'>&#xf09b;</span> <b>stesiam</b>, 2024"
 
-bg_gradient <- grid::linearGradient(colours = rev(MetBrewer::met.brewer("Pillement")[5:6]))
+# --- Colors ---
+tool_colors <- c("R" = "#019b98", "MATLAB" = "#F18F01", "SPSS" = "#dd0025")
 
+# --- Plot function ---
+make_plot <- function(title_text, subtitle_text, caption_text,
+                      title_font, body_font, subtitle_font = body_font,
+                      bg, text_color, subtle_color) {
 
-
-te = ggplot(d ,aes(x = Year, y  = mean, group = name, color = name)) +
-  geom_point(
-    data = d %>% filter(Year == 2024), size = 10, aes(x = Year, y = mean, group = name,
-                                                      color = name)) +
-  geom_line(lwd = 3) +
-  geom_textline(aes(x = Year, y = round(mean), 
-                    color = name, label = name, group = name), size = 5, 
-                fontface = 1, hjust = 0.21, vjust = -0.3, family = "title") +
-  geom_image( data = d %>% filter(Year == 2024), aes(x=Year,y=mean,image=image, color = NULL), asp=2.2)+
-  labs(
-    title = title_text,
-    subtitle = subtitle_text,
-    caption = caption_text,
-    y = "Search Interest"
+  ggplot(d, aes(x = Year, y = mean, group = name, color = name)) +
+    geom_line(lwd = 3) +
+    geom_textline(
+      aes(label = name),
+      size = 5, fontface = 1, hjust = 0.21, vjust = 0, family = title_font
     ) +
-  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024)) +
-  scale_y_continuous(n.breaks = 5,
-                     limits = c(0, 100)) +
-  scale_color_manual(
-    values = c(
-      "R" = "#019b98",
-      "MATLAB" = "#F18F01",
-      "SPSS" = "#dd0025"
-  )) +
-  theme_minimal(base_size = 12) +
-  theme(
-    text = element_text(color = "white"),
-    plot.title = element_markdown(color = "white", family = "jost", face = "bold",
-                                  hjust = 0.5),
-    plot.subtitle = element_markdown(family = "jost", size = 9.3, lineheight = 1.1),
-    plot.caption = element_markdown(lineheight = 1.2, size = 7),
-    plot.background = element_rect(fill = bg_gradient),
-    panel.background = element_rect(fill = "transparent", color = "transparent"),
-    legend.position = "none",
-    axis.text = element_text(color = "white", size = 10),
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    panel.grid = element_blank(),
-    axis.text.y = element_blank(),
-    axis.line.x = element_line(linewidth = 0.5)
-  )
+    geom_point(data = d_end, size = 10) +
+    geom_image(data = d_end, aes(image = image, color = NULL), asp = 2.2) +
+    labs(title = title_text, subtitle = subtitle_text, caption = caption_text) +
+    scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024)) +
+    scale_y_continuous(n.breaks = 5, limits = c(0, 100)) +
+    scale_color_manual(values = tool_colors) +
+    theme_minimal(base_family = body_font) +
+    theme(
+      plot.background  = element_rect(fill = bg, color = bg),
+      panel.background = element_rect(fill = bg, color = NA),
+      plot.title       = element_text(color = text_color, family = title_font,
+                                      face = "bold", hjust = 0.5,
+                                      margin = margin(t = 6, b = 4), size = 13),
+      plot.subtitle    = element_textbox_simple(size = 8.5, color = subtle_color,
+                                                family = subtitle_font, lineheight = 1.3,
+                                                margin = margin(b = 8)),
+      plot.caption     = element_markdown(color = subtle_color, lineheight = 1.2,
+                                          size = 7, margin = margin(t = 8)),
+      legend.position  = "none",
+      axis.text.x      = element_text(color = subtle_color, size = 10),
+      axis.text.y      = element_blank(),
+      axis.title       = element_blank(),
+      panel.grid       = element_blank(),
+      axis.line.x      = element_line(color = subtle_color, linewidth = 0.5),
+      plot.margin      = margin(l = 10, r = 10, t = 8, b = 8)
+    )
+}
 
-te_gr = ggplot(d ,aes(x = Year, y  = mean, group = name, color = name)) +
-  geom_point(
-    data = d %>% filter(Year == 2024), size = 10, aes(x = Year, y = mean, group = name,
-                                                      color = name)) +
-  geom_line(lwd = 3) +
-  geom_textline(aes(x = Year, y = round(mean), 
-                    color = name, label = name, group = name), size = 5, 
-                fontface = 1, hjust = 0.21, vjust = -0.3, family = "title") +
-  geom_image( data = d %>% filter(Year == 2024), aes(x=Year,y=mean,image=image, color = NULL), asp=2.2)+
-  labs(
-    title = title_text_gr,
-    subtitle = subtitle_text_gr,
-    caption = caption_text_gr,
-    y = "Τάση αναζήτησης"
-  ) +
-  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024)) +
-  scale_y_continuous(n.breaks = 5,
-                     limits = c(0, 100)) +
-  scale_color_manual(
-    values = c(
-      "R" = "#019b98",
-      "MATLAB" = "#F18F01",
-      "SPSS" = "#dd0025"
-    )) +
-  theme_minimal(base_size = 12) +
-  theme(
-    text = element_text(color = "white"),
-    plot.title = element_markdown(color = "white", family = "serif", face = "bold",
-                                  hjust = 0.5),
-    plot.subtitle = element_markdown(family = "serif", size = 10.1, lineheight = 1.1,
-                                     margin = margin(r=10, l = 10)),
-    plot.caption = element_markdown(lineheight = 1.2, size = 7),
-    plot.background = element_rect(fill = bg_gradient),
-    panel.background = element_rect(fill = "transparent", color = "transparent"),
-    legend.position = "none",
-    axis.text = element_text(color = "white", size = 10),
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    panel.grid = element_blank(),
-    axis.text.y = element_blank(),
-    axis.line.x = element_line(linewidth = 0.5)
+# --- Generate all 4 variants ---
+plots <- list(
+  list(
+    lang = "en", theme = "light",
+    title_font = "outfit", body_font = "jost",
+    bg = "#F8F4EF", text_color = "grey10", subtle_color = "grey40",
+    title = en_title, subtitle = en_subtitle, caption = en_caption
+  ),
+  list(
+    lang = "en", theme = "dark",
+    title_font = "outfit", body_font = "jost",
+    bg = "#1E1A17", text_color = "white", subtle_color = "grey70",
+    title = en_title, subtitle = en_subtitle, caption = en_caption
+  ),
+  list(
+    lang = "el", theme = "light",
+    title_font = "noto_sans", body_font = "noto_sans", subtitle_font = "source_sans",
+    bg = "#F8F4EF", text_color = "grey10", subtle_color = "grey40",
+    title = el_title, subtitle = el_subtitle, caption = el_caption
+  ),
+  list(
+    lang = "el", theme = "dark",
+    title_font = "noto_sans", body_font = "noto_sans", subtitle_font = "source_sans",
+    bg = "#1E1A17", text_color = "white", subtle_color = "grey70",
+    title = el_title, subtitle = el_subtitle, caption = el_caption
   )
-
-ggsave(
-  here::here("2024/day28/day28-2024-cc.png"), te, width =6, height = 4
 )
 
-ggsave(
-  here::here("2024/day28/day28-2024-cc-el.png"), te_gr, width =6, height = 4
-)
-
+for (p in plots) {
+  plt <- make_plot(
+    title_text    = p$title,
+    subtitle_text = p$subtitle,
+    caption_text  = p$caption,
+    title_font    = p$title_font,
+    body_font     = p$body_font,
+    subtitle_font = if (!is.null(p$subtitle_font)) p$subtitle_font else p$body_font,
+    bg            = p$bg,
+    text_color    = p$text_color,
+    subtle_color  = p$subtle_color
+  )
+  ggsave(
+    filename = glue("2024/day28/day28-2024-{p$theme}-{p$lang}.png"),
+    plot     = plt,
+    device   = "png",
+    height   = 4,
+    width    = 6,
+    dpi      = 300
+  )
+  message("Saved: day28-2024-", p$theme, "-", p$lang)
+}

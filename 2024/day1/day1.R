@@ -1,168 +1,203 @@
 library(dplyr)
 library(ggplot2)
 library(ggtext)
-library(ggimage)
 library(glue)
 library(ggforce)
-
 library(showtext)
 library(sysfonts)
 
-## Load fonts
-
-sysfonts::font_add_google("Oswald", "title")
-sysfonts::font_add_google("Josefin Slab","js")
-sysfonts::font_add_google("Cabin Condensed","cc")
-sysfonts::font_add_google("Ubuntu Condensed", "uc")
-
-#sysfonts::font_add_google("Gentium Plus", "gp")
-sysfonts::font_add('gp',"/home/stelios/Downloads/Gentium_Plus/GentiumPlus-Regular.ttf")
-
-sysfonts::font_add('fb', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Brands-Regular-400.otf')
-sysfonts::font_add('fs', '/home/stelios/Downloads/fontawesome-free-6.4.0-desktop/otfs/Font Awesome 6 Free-Solid-900.otf')
-
+sysfonts::font_add_google("Roboto Condensed", "rc")
+sysfonts::font_add('fb', '/home/stelios/Documents/otfs/Font Awesome 6 Brands-Regular-400.otf')
 
 showtext_auto()
 showtext::showtext_opts(dpi = 300)
 
-## Data
+sm_sales <- 14.8
 
-# Source: https://selfservice.gr/panorama-ton-ellinikon-souper-market-2023-i-chrimatooikonomiki-eikona-42-alysidon-souper-market-to-2022/
-
-sm_sales = 14.8
-
-data = data.frame(
-  "Brand" = c("Sklavenitis", "LIDL", "AB", "Metro", "Masoutis", "Kritikos","Other"),
-  "BrandGR" = c("Σκλαβενίτης", "LIDL", "ΑΒ", "Metro", "Μασούτης", "Κρητικός","Άλλο"),
-  "Sales" = c(5.35, 2, 1.94, 1.65, 1.15, 0.78, sm_sales - 5.35 - 2 - 1.94 - 1.65 - 1.15 - 0.78),
-  "col"  = c("#c6a464", "#fff200", "cyan4", "red", "blue4", "red4","grey95"),
-  "Image" = c("https://www.sklavenitis.gr/favicon.ico", 
-              "https://www.lidl-hellas.gr/static/assets/lidl-onlineshop-hellas-271731.svg", 
-              "https://static.ab.gr/static/next/icons/favicon.png",
-              "https://www.metrocashandcarry.gr/assets/img/logo_metro.svg",
-              NA, NA, NA)
+# Professional palette: distinct, non-clashing, brand-inspired
+brand_colors <- c(
+  "Sklavenitis" = "#C8963E",  # warm gold  (highlight brand)
+  "LIDL"        = "#0050AA",  # LIDL blue  (replaces garish yellow)
+  "AB"          = "#1F7A52",  # muted teal
+  "Metro"       = "#C0392B",  # clean red
+  "Masoutis"    = "#1A3A6B",  # dark navy  (distinct from LIDL blue)
+  "Kritikos"    = "#8B3A3A",  # dark burgundy (distinct from Metro red)
+  "Other"       = "#9EAAB7"   # visible grey (replaces near-invisible grey95)
 )
 
-title_text = glue("<b>Supermarkets' Sales in Greece (2022)</b>")
-subtitle_text = glue( "According to the latest survey of IELKA, the total sales of Greek 
-    supermarkets are <br> amounted to € <b>14.8</b> bil. <b><span style = 'color: #c6a464;'>Sklavenitis</span></b> is by far the most
-    prevalent of all its competitors <br> with € <b>5.35</b> bil. in sales (36% of total market)." )
-caption_text = "30 Day Chart Challenge, Day 1 (2024) | <b> Data:</b> Panorama of The Greek Supermarkets, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+df <- data.frame(
+  Brand   = c("Sklavenitis", "LIDL", "AB", "Metro", "Masoutis", "Kritikos", "Other"),
+  BrandGR = c("Σκλαβενίτης", "LIDL", "ΑΒ", "Metro", "Μασούτης", "Κρητικός", "Άλλο"),
+  Sales   = c(5.35, 2, 1.94, 1.65, 1.15, 0.78,
+              sm_sales - 5.35 - 2 - 1.94 - 1.65 - 1.15 - 0.78),
+  stringsAsFactors = FALSE
+)
 
-title_text_gr = glue("<b>Τζίρος Ελληνικών Σουπερμάρκετ (2022)</b>")
-subtitle_text_gr = glue( "Σύμφωνα με τη τελευταία έκθεση του ΙΕΛΚΑ, οι συνολικές πωλήσεις ανέρχονται <br> στα € <b>11.2</b> δις. Η αλυσίδα σουπερμάρκετ <b><span style = 'color: #c6a464;'>Σκλαβενίτης</span></b> είναι αυτή
-                         με το μεγαλύτερο <br> τζίρο μεταξύ των ανταγωνιστών της με € <b>5.35</b> δις πωλήσεις (36% της αγοράς)." )
-caption_text_gr = "30 Day Chart Challenge, Day 1 (2024) <br> <b> Δεδομένα:</b> Πανόραμα ελληνικών σουπερμάρκετ, selfservice.gr<br><span style='font-family:fb;'  >&#xf09b;</span> <b>stesiam</b>, 2024"
+# ggforce StatPie starts at π/2 (12 o'clock) and goes clockwise.
+# mid_angle converts each slice midpoint to standard math angle
+# (0 = right, positive = CCW) so cos/sin give correct Cartesian coords.
+df <- df %>%
+  mutate(
+    pct       = Sales / sum(Sales),
+    cum_pct   = cumsum(pct),
+    prev_cum  = lag(cum_pct, default = 0),
+    mid_pct   = (prev_cum + cum_pct) / 2,
+    mid_angle = pi / 2 - mid_pct * 2 * pi,
+    lx_in     = 1.04 * cos(mid_angle),
+    ly_in     = 1.04 * sin(mid_angle),
+    lx_out    = 1.22 * cos(mid_angle),
+    ly_out    = 1.22 * sin(mid_angle),
+    lx        = 1.30 * cos(mid_angle),
+    ly        = 1.30 * sin(mid_angle),
+    hjust     = case_when(
+      cos(mid_angle) >  0.15 ~ 0,
+      cos(mid_angle) < -0.15 ~ 1,
+      TRUE                   ~ 0.5
+    )
+  )
 
-
-get_plot = function(custom_title, custom_subtitle, custom_caption,
-                    custom_font_title = "serif",
-                    custom_font_subtitle = "serif",
-                    custom_font_caption = "serif",
-                    custom_text = "Total Sales",
-                    custom_metric = "Bn"){
-  ggplot(data) +
-    geom_arc_bar(aes(
-      x0 = 0,
-      y0 = 0,
-      r0 = 0.6,
-      r = 1,
-      amount = Sales,
-      fill = Brand
-    ),
-    stat = "pie",
-    color = "#FFFFFF"
+make_plot <- function(title_text,
+                      subtitle_text,
+                      caption_text,
+                      center_text,
+                      label_col    = "Brand",
+                      bn_suffix    = "bn",
+                      bg           = "#F9F9F9",
+                      text_color   = "grey15",
+                      subtle_color = "grey45") {
+  
+  accent <- "#C8963E"
+  
+  # Build per-slice label using the requested name column
+  plot_df <- df %>%
+    mutate(slice_label = paste0(
+      "<span style='color:", brand_colors[Brand], ";'>**", .data[[label_col]], "**</span><br>",
+      round(pct * 100, 1), "% - €",
+      round(Sales, 2), " ", bn_suffix
+    ))
+  
+  ggplot(plot_df) +
+    # Donut slices — r0 = 0.55 gives a wider hole for cleaner center text
+    geom_arc_bar(
+      aes(x0 = 0, y0 = 0, r0 = 0.55, r = 1, amount = Sales, fill = Brand),
+      stat      = "pie",
+      color     = bg,
+      linewidth = 0.6
     ) +
+    # Leader lines: connect slice edge to label anchor
+    geom_segment(
+      aes(x = lx_in, y = ly_in, xend = lx_out, yend = ly_out),
+      color     = "grey65",
+      linewidth = 0.3
+    ) +
+    # Computed-position labels
     geom_richtext(
-      x = c(1.25, 0.3, -0.3, -0.75, -0.78, -0.65,-0.3),
-      y = c(0, -0.72, -0.75, -0.3, 0.1, 0.43, 0.7),
-      angle = c(rep(0, 5), -30, 0),
-      color = c(rep("black",3), rep("white", 3), "black"),
-      aes(label = paste0(
-        glue("<b>{Brand}</b><br>"),
-        round(100 * Sales / sum(Sales), 1),
-        "%"
-      )),
-      size = 9 / .pt,
-      fill = NA,
-      label.color = NA
-     ) +
+      aes(x = lx, y = ly, label = slice_label, hjust = hjust),
+      vjust       = 0.5,
+      size        = 8 / .pt,
+      family      = "rc",
+      fill        = NA,
+      label.color = NA,
+      color       = text_color,
+      lineheight  = 1.15
+    ) +
+    # Clean center: total market, no icon
     geom_richtext(
-      x = 0,
-      y = 0,
-      label = paste0(
-        "<span style='font-family:fs; color:#222021; font-size:30pt;'  >&#xf07a;</span><br>",
-        "<br><strong>EUR€ ",
-        round(sum(data$Sales), 2),
-        "<br>",
-        "Billions",
-        "</strong>"
-      ),
-      size = 14 / .pt,
-      fill = NA,
-      label.color = NA
+      x           = 0,
+      y           = 0,
+      label       = center_text,
+      size        = 11 / .pt,
+      family      = "rc",
+      fill        = NA,
+      label.color = NA,
+      color       = text_color,
+      hjust       = 0.5,
+      vjust       = 0.5,
+      lineheight  = 1.4
     ) +
-    geom_image(
-      x = c(0.75, 0.35, -0.25, -1, -1.2, NA, NA),
-      y = c(0.2, -1, -1, -0.5, 0.2, NA, NA),
-      size = c(rep(0.1,3), 0.2, 0.2, 0.2, 0.2),
-      aes(image = Image)
-    ) +
-    labs(
-      title = custom_title,
-      subtitle = custom_subtitle,
-      caption = custom_caption
-    ) +
-    scale_x_continuous(expand = expansion(c(0.3, 0.5))) +
-    scale_fill_manual(values = c("Sklavenitis" = "#c6a464", "LIDL" = "#fff200", "AB" ="cyan4", 
-                                 "Metro" = "red", "Masoutis" = "blue4", "Kritikos" = "red4",
-                                 "Other" = "grey95")) +
-    theme_void(base_size = 11.5)  +
+    scale_fill_manual(values = brand_colors) +
+    coord_fixed(xlim = c(-2.1, 2.1), ylim = c(-1.55, 1.55), expand = FALSE) +
+    labs(title = title_text, subtitle = subtitle_text, caption = caption_text) +
+    theme_void() +
     theme(
-      plot.title = element_markdown(family = custom_font_title,
-                                    margin = margin(t = 10, b = 5), 
-                                    hjust = 0.5, 
-                                    color = "black",face = "bold"),
-      plot.title.position = "plot",
-      plot.subtitle = element_markdown(family = custom_font_subtitle,
-                                       margin = margin(t = 5, l = 10, r = 10, b = 5),
-                                       lineheight = 1.1,
-                                       color = "black"),
-      plot.background = element_rect(fill = "white", color = "white"),
-      panel.background = element_rect(fill = "white", color = "white"),
-      plot.caption = element_markdown(family = custom_font_caption, margin = margin(t = 5, r = 5, b = 4), 
-                                      lineheight = 1.4,
-                                      color = "black", size = 8,
-                                      hjust = 0.5),
-      plot.margin = margin(l=8, r=8),
-      legend.position = "none"
+      plot.title       = element_markdown(
+        family = "rc", size = 13, hjust = 0.5,
+        margin = margin(t = 12, b = 4), color = text_color
+      ),
+      plot.subtitle    = element_markdown(
+        family = "rc", size = 9, hjust = 0.5,
+        margin = margin(b = 8), color = subtle_color, lineheight = 1.3
+      ),
+      plot.caption     = element_markdown(
+        family = "rc", size = 7, hjust = 0.5,
+        margin = margin(t = 6, b = 6), color = subtle_color, lineheight = 1.4
+      ),
+      plot.background  = element_rect(fill = bg, color = NA),
+      panel.background = element_rect(fill = bg, color = NA),
+      plot.margin      = margin(l = 12, r = 12, t = 5, b = 5),
+      legend.position  = "none"
     )
 }
 
-greek_viz = get_plot(custom_title = title_text_gr,
-                     custom_subtitle = subtitle_text_gr,
-                     custom_caption = caption_text_gr,
-                     custom_text = "Πωλήσεις",
-                     custom_metric = "δις")
+accent <- "#C8963E"
 
-eng_viz = get_plot(custom_title = title_text,
-                               custom_subtitle = subtitle_text,
-                               custom_caption = caption_text,
-                   "js", "serif", "title")
+# --- English texts ---
+en_title    <- "**Supermarkets' Sales in Greece (2022)**"
+en_subtitle <- glue("Total market: **€{sm_sales} billion**. ",
+                    "<span style='color:{accent};'>**Sklavenitis**</span> ",
+                    "leads with **36%** of the market.")
+en_caption  <- paste0("30 Day Chart Challenge, Day 1 (2024) | ",
+                      "**Data:** Panorama of Greek Supermarkets, selfservice.gr<br>",
+                      "<span style='font-family:fb;'>&#xf09b;</span> **stesiam**, 2024")
+en_center   <- paste0("**€", sm_sales, " bn**",
+                      "<br><span style='font-size:7.5pt'>Total market (2022)</span>")
 
+# --- Greek texts ---
+gr_title    <- "**Τζίρος Ελληνικών Σουπερμάρκετ (2022)**"
+gr_subtitle <- glue("Συνολικές πωλήσεις: **€{sm_sales} δις**. ",
+                    "<span style='color:{accent};'>**Σκλαβενίτης**</span> ",
+                    "με **36%** της αγοράς.")
+gr_caption  <- paste0("30 Day Chart Challenge, Day 1 (2024) | ",
+                      "**Δεδομένα:** Πανόραμα Ελληνικών Σουπερμάρκετ, selfservice.gr<br>",
+                      "<span style='font-family:fb;'>&#xf09b;</span> **stesiam**, 2024")
+gr_center   <- paste0("**€", sm_sales, " δις**",
+                      "<br><span style='font-size:7.5pt'>Σύνολο αγοράς (2022)</span>")
 
-ggsave(
-  filename = "2024/day1/day1-2024-cc-en-light.png",
-  plot = eng_viz,
-  device = "png",
-  height = 4,
-  width = 6)
+# --- Generate all 4 variants ---
+plots <- list(
+  list(lang = "en", theme = "light", label_col = "Brand",   bn_suffix = "bn",
+       bg = "#F9F9F9", text_color = "grey15", subtle_color = "grey45",
+       title = en_title, subtitle = en_subtitle, caption = en_caption, center = en_center),
+  list(lang = "en", theme = "dark",   label_col = "Brand",   bn_suffix = "bn",
+       bg = "#1C1C1C", text_color = "grey90", subtle_color = "grey60",
+       title = en_title, subtitle = en_subtitle, caption = en_caption, center = en_center),
+  list(lang = "el", theme = "light", label_col = "BrandGR", bn_suffix = "δις",
+       bg = "#F9F9F9", text_color = "grey15", subtle_color = "grey45",
+       title = gr_title, subtitle = gr_subtitle, caption = gr_caption, center = gr_center),
+  list(lang = "el", theme = "dark",   label_col = "BrandGR", bn_suffix = "δις",
+       bg = "#1C1C1C", text_color = "grey90", subtle_color = "grey60",
+       title = gr_title, subtitle = gr_subtitle, caption = gr_caption, center = gr_center)
+)
 
-
-ggsave(
-  filename = "2024/day1/day1-2024-cc-el-light.png",
-  plot = greek_viz,
-  device = "png",
-  height = 4,
-  width = 6)
+for (p in plots) {
+  plt <- make_plot(
+    title_text    = p$title,
+    subtitle_text = p$subtitle,
+    caption_text  = p$caption,
+    center_text   = p$center,
+    label_col     = p$label_col,
+    bn_suffix     = p$bn_suffix,
+    bg            = p$bg,
+    text_color    = p$text_color,
+    subtle_color  = p$subtle_color
+  )
+  ggsave(
+    filename = glue("2024/day1/day1-2024-{p$theme}-{p$lang}.png"),
+    plot     = plt,
+    device   = "png",
+    height   = 4.5,
+    width    = 6.5,
+    dpi      = 300
+  )
+}
 
