@@ -36,7 +36,7 @@ bind_dataset <- dplyr::bind_cols(dataset_part_1, dataset_part_2)
 dataset <- bind_dataset %>%
   slice(c(1, 2, 6, 9, 12)) %>%
   rename(category = `Category and use`) %>%
-  mutate(category = c("Total", "Car", "Bus", "Motorcycle", "Truck")) %>%
+  mutate(category = c("Total", "Car", "Bus", "Truck", "Motorcycle")) %>%
   filter(category != "Total")
 
 tidy_dataset <- dataset %>%
