@@ -192,7 +192,7 @@ for (p in plots) {
     subtle_color  = p$subtle_color
   )
   ggsave(
-    filename = glue("2024/day1/day1-2024-{p$theme}-{p$lang}.png"),
+    filename = glue("2024/day01/day01-2024-{p$theme}-{p$lang}.png"),
     plot     = plt,
     device   = "png",
     height   = 4.5,

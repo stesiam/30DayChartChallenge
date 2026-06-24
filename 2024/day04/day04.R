@@ -33,7 +33,7 @@ get_teams_emblem <- function(team_name) {
     html_attr("src")
   download.file(
     paste0("https:", image_url),
-    destfile = paste0("2024/day4/team_logos/", wiki_name, ".png")
+    destfile = paste0("2024/day04/team_logos/", wiki_name, ".png")
   )
 }
 
@@ -68,7 +68,7 @@ for (team in unique(greek_cup_data$Teams)) {
     "OFI" = "OFI_Crete",
     team
   )
-  destfile <- paste0("2024/day4/team_logos/", wiki_name, ".png")
+  destfile <- paste0("2024/day04/team_logos/", wiki_name, ".png")
   if (file.exists(destfile)) next
   tryCatch(
     get_teams_emblem(team),
@@ -84,7 +84,7 @@ logos <- data.frame(
             "", "Aris.png", "PAOK.png", "Iraklis.png", "Panionios.png", "Kastoria.png",
             "Athlitiki_Enosi_Larissa.png", "ofi.png")
 )
-logos$Logo <- paste0("2024/day4/team_logos/", logos$Logo)
+logos$Logo <- paste0("2024/day04/team_logos/", logos$Logo)
 
 # --- Join & compute stats ---
 clean_data <- left_join(greek_cup_data, logos, by = "Teams") %>%
@@ -201,7 +201,7 @@ for (p in plots) {
     subtle_color = p$subtle_color, strip_color = p$strip_color
   )
   ggsave(
-    filename = glue("2024/day4/day4-2024-{p$theme}-{p$lang}.png"),
+    filename = glue("2024/day04/day04-2024-{p$theme}-{p$lang}.png"),
     plot     = plt,
     device   = "png",
     height   = 4.5,
