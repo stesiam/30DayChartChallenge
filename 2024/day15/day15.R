@@ -167,6 +167,8 @@ make_plot <- function(title_text, subtitle_text, caption_text,
       panel.grid      = element_blank(),
       axis.title      = element_blank(),
       axis.text       = element_blank(),
+      axis.text.x = element_text(family = "uc", face = "bold", 
+                                 colour = text_color, margin = margin(t=3)),
       axis.line       = element_blank()
     )
 }

@@ -63,7 +63,7 @@ en_title <- glue("<b>Number of Statistics' Graduates and <span style='color:#f87
 en_subtitle <- glue(
   "Completing a Statistics degree at the University of Piraeus takes far longer than it should. ",
   "In 2021, the average time-to-degree reached <b>7.9 years</b>, ",
-  "nearly double the <b><span style='color:#00bfc4;'>6-year legal limit</span></b> now enforced by law. ",
+  "nearly double the nominal duration and well over the <b><span style='color:#00bfc4;'>6-year legal limit</span></b> now enforced by law. ",
   "Since 2017, <b><span style='color:#f8766d;'>more than half of graduates have exceeded that limit</span></b>, ",
   "risking expulsion before completing their degree. ",
   "Complaints about the lack of lecture notes, the difficulty of exams, and faculty conduct have gone largely unaddressed."
@@ -74,7 +74,7 @@ el_title <- glue("<b>Αριθμός απόφοιτων Στατιστικής κ
 el_subtitle <- glue(
   "Η αποφοίτηση από το τμήμα Στατιστικής του Παν. Πειραιά διαρκεί πολύ περισσότερο από ό,τι θα έπρεπε. ",
   "Το 2021, η μέση διάρκεια σπουδών έφτασε τα <b>7.9 έτη</b>, ",
-  "σχεδόν διπλάσια από το <b><span style='color:#00bfc4;'>νόμιμο όριο των 6 ετών</span></b>. ",
+  "σχεδόν διπλάσια από τη κανονική διάρκεια και πάνω από το <b><span style='color:#00bfc4;'>νόμιμο όριο των 6 ετών</span></b>. ",
   "Από το 2017, <b><span style='color:#f8766d;'>πάνω από τους μισούς απόφοιτους ξεπερνούν αυτό το όριο</span></b>, ",
   "ρισκάροντας τη διαγραφή πριν λάβουν το πτυχίο τους. ",
   "Παράπονα για την έλλειψη σημειώσεων, τη δυσκολία εξετάσεων και τις συμπεριφορές καθηγητών παραμένουν σε μεγάλο βαθμό αναπάντητα."
